@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapVee | Downloader</title>
+    <style>
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 400px; text-align: center; }
+        h2 { color: #00f2ea; margin-bottom: 20px; font-size: 28px; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 15px; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(45deg, #00f2ea, #ff0050); color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: scale(1.02); opacity: 0.9; }
+        #loader { display: none; margin-top: 15px; color: #00f2ea; }
+        #downloadArea { display: none; margin-top: 20px; padding: 15px; background: #222; border-radius: 12px; }
+        .dl-btn { background: #22c55e; color: #fff; text-decoration: none; padding: 12px; display: block; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>SnapVee ⚡️</h2>
+        <input type="text" id="urlInput" placeholder="انسخ رابط الفيديو هنا...">
+        <button id="btn" onclick="startDownload()">تحميل الفيديو الآن</button>
+        <div id="loader">جاري استخراج الفيديو... ⏳</div>
+        <div id="downloadArea">
+            <p style="color: #22c55e;">✅ جاهز للتحميل!</p>
+            <a id="fileLink" class="dl-btn" href="#" target="_blank">اضغط للحفظ على الجهاز</a>
+        </div>
+    </div>
+
+    <script>
+        async function startDownload() {
+            const url = document.getElementById('urlInput').value;
+            const btn = document.getElementById('btn');
+            const loader = document.getElementById('loader');
+            const dlArea = document.getElementById('downloadArea');
+
+            if(!url) return alert("حط الرابط الأول يا بطل!");
+
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+            dlArea.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await response.json();
+                
+                if (data.url) {
+                    document.getElementById('fileLink').href = data.url;
+                    dlArea.style.display = 'block';
+                } else {
+                    alert(data.error || "فشل التحميل");
+                }
+            } catch (e) {
+                alert("السيرفر مش بيرد، جرب تاني");
+            } finally {
+                btn.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
