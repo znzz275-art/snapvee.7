@@ -13,29 +13,30 @@ app.post('/api/download', async (req, res) => {
     let { url } = req.body;
     if (!url) return res.status(400).json({ error: "الرابط مطلوب" });
 
+    url = url.trim();
+
     try {
-        console.log("🚀 محاولة السحب عبر المحرك البديل...");
+        console.log("🚀 محاولة السحب عبر المحرك الاحترافي الجديد...");
         
-        // استخدام محرك معالجة مختلف لتجنب خطأ 403
+        // ده API محرك تاني خالص بيستخدمه مواقع التحميل الكبيرة
         const response = await axios({
-            method: 'post',
-            url: 'https://worker.jaced.com/api/json', // سيرفر معالجة بديل
-            data: { url: url, vQuality: '720' },
+            method: 'GET',
+            url: https://api.vkrdown.com/api/item.php?url=${encodeURIComponent(url)},
             headers: {
-                'Content-Type': 'application/json',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
         });
 
-        if (response.data && response.data.url) {
-            res.json({ url: response.data.url });
+        // هنا بنشوف النتيجة اللي راجعة من المحرك
+        if (response.data && response.data.data && response.data.data.url) {
+            console.log("✅ نجحنا أخيراً!");
+            res.json({ url: response.data.data.url[0].url }); // بياخد أول رابط متاح
         } else {
-            // محاولة أخيرة لو المحرك الأول فشل
-            res.status(400).json({ error: "المحرك الحالي لا يستجيب، جرب بعد دقيقة" });
+            res.status(400).json({ error: "المحرك لم يجد فيديو، جرب رابط آخر" });
         }
     } catch (e) {
-        console.log("❌ خطأ السيرفر: " + (e.response ? e.response.status : e.message));
-        res.status(500).json({ error: "عذراً، الرابط محمي أو السيرفر مشغول" });
+        console.log("❌ خطأ: " + e.message);
+        res.status(500).json({ error: "السيرفر مشغول، حاول لاحقاً" });
     }
 });
 
